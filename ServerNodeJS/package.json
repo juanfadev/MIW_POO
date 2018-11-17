@@ -1,0 +1,14 @@
+{
+  "name": "servernodejs",
+  "version": "1.0.0",
+  "description": "Server NodeJS for entities Landmark",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "negotiator": "^0.6.1"
+  }
+}
