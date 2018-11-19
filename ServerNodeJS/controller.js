@@ -1,14 +1,26 @@
 const http = require('http');
 const url = require('url');
-const SCHEMA = "LandmarksOrHistoricalBuildings"
+const SCHEMA = "LandmarksOrHistoricalBuildings";
+const PLACE = "Place";
 
 module.exports = http.createServer((req, res) => {
-    var service = require('./service.js');
+    let service = require('./service.js');
     const reqUrl = url.parse(req.url, true);
     const id = reqUrl.pathname.split('/')[2];
+    const entity = reqUrl.pathname.split('/')[1];
+    //Change service based on entity
+    switch (entity) {
+        case SCHEMA:
+            service = require('./service.js');
+            break;
+        case PLACE:
+            break;
+        default:
+            break;
+    }
     console.log('ID:' + id);
     //ID endpoints
-    if (id) {
+    if (typeof id == 'number') {
         console.log('Request Type:' +
             req.method + ' Endpoint: ' +
             reqUrl.pathname);
@@ -39,6 +51,11 @@ module.exports = http.createServer((req, res) => {
             reqUrl.pathname);
         service.sampleRequest(req, res);
         // POST Endpoint
+    } else if (reqUrl.pathname == `/${SCHEMA}` && req.method === 'POST') {
+        console.log('Request Type:' +
+            req.method + ' Endpoint: ' +
+            reqUrl.pathname);
+        service.postEntity(req, res);  
     } else if (reqUrl.pathname == '/test' && req.method === 'POST') {
         console.log('Request Type:' +
             req.method + ' Endpoint: ' +
@@ -51,3 +68,5 @@ module.exports = http.createServer((req, res) => {
         service.invalidRequest(req, res);
     }
 });
+
+

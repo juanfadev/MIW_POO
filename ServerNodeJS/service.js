@@ -84,11 +84,17 @@ exports.getEntity = function (req, res, id) {
                 res.end(landmark.toHTML(data));
 
         }
-    }).catch( (error) => {
+    }).catch((error) => {
         console.log(error);
         this.invalidRequest(req, res);
     });
 };
+
+
+
+exports.getDefaultEntity = function (req, res, id) {
+
+}
 
 exports.putEntity = function (req, res, id) {
     let landmark = new Landmark(id);
@@ -103,14 +109,21 @@ exports.putEntity = function (req, res, id) {
 }
 
 exports.postEntity = function (req, res) {
-    let landmark = new Landmark();
-    landmark.createNewLandmark(JSON.parse(req.body)).then(data => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(data));
-    }).catch((error) => {
-        console.log(error);
-        this.invalidRequest(req, res);
+    let body = '';
+    req.on('data', function (chunk) {
+        body += chunk;
+    });
+    req.on('end', function () {
+        let landmark = new Landmark();
+        console.log(JSON.parse(body));
+        landmark.createNewLandmark(JSON.parse(body)).then(data => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(data));
+        }).catch((error) => {
+            console.log(error);
+            this.invalidRequest(req, res);
+        });
     });
 }
 
@@ -126,3 +139,4 @@ exports.deleteEntity = function (req, res) {
         }
     })
 }
+

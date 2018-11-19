@@ -7,8 +7,8 @@ const unlink = util.promisify(fs.unlink);
 const landmarksFolder = './landmarks'
 
 module.exports = class Landmark {
-    
-    constructor(id){
+
+    constructor(id) {
         this.id = id;
     }
 
@@ -20,9 +20,9 @@ module.exports = class Landmark {
     async createNewLandmark(data) {
         let id = 0;
         let files = await this.readDir;
-        let file = files.sort().reverse()[0];
+        let file = files.sort((a, b) => { return a > b }).reverse()[0];
         if (file) {
-            let id = file + 1;
+            id = file + 1;
         }
         return this.updateLandmarkById(data, id);
     }
