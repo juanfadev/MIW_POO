@@ -5,6 +5,7 @@ const writeFile = util.promisify(fs.writeFile);
 const readdir = util.promisify(fs.readdir);
 const unlink = util.promisify(fs.unlink);
 const landmarksFolder = './landmarks'
+const landmarkDefault = './entities/landmark.json'
 
 module.exports = class Landmark {
 
@@ -19,27 +20,33 @@ module.exports = class Landmark {
 
     async createNewLandmark(data) {
         let id = 0;
-        let files = await this.readDir;
-        let file = files.sort((a, b) => { return a > b }).reverse()[0];
+        let files = await this.readDir(landmarksFolder);
+        console.log("FILES:" + files);
+        let file = files.map((f) => stripExtension(f)).reverse()[0];
         if (file) {
-            id = file + 1;
+            id = parseInt(file) + 1;
         }
         return this.updateLandmarkById(data, id);
     }
 
     async updateLandmarkById(data, id) {
-        return writeFile(`${landmarksFolder}/${id}.json`, data, 'utf8').then(f => {
+        return writeFile(`${landmarksFolder}/${id}.json`, JSON.stringify(data), 'utf8').then(f => {
             console.log("File saved!")
             return this.getLandmarkById(id);
         });
     }
 
-    async readDir() {
-        return await readdir(testFolder);
+    async readDir(folder) {
+        return await readdir(folder);
     }
 
     async deleteLandmarkById(id) {
         return await unlink(`${landmarksFolder}/${id}.json`);
+    }
+
+    async defaultLandmark() {
+        console.log("GetLandMark Default");
+        return await readFile(landmarkDefault, 'utf8');
     }
 
     toHTML(data) {
@@ -51,8 +58,9 @@ module.exports = class Landmark {
                 <meta http-equiv="X-UA-Compatible" content="IE=edge">
                 <title>Landmark ${json.name}</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1">
-                <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-                <script src="main.js"></script>
+                <script type="application/ld+json">
+                    ${data}
+                </script>
             </head>
             <body>
                 <h1>Landmark: ${json.name}</h1>
@@ -76,4 +84,8 @@ module.exports = class Landmark {
             </body>
             </html>`
     }
+}
+
+function stripExtension(filename) {
+    return filename.split('.')[0];
 }

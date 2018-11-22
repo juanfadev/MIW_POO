@@ -1,5 +1,5 @@
 const Negotiator = require('negotiator');
-const Landmark = require('./landmark.js');
+const Place = require('./landmark.js');
 let availableMediaTypes = ['text/html', 'text/plain', 'application/json', 'application/ld+json'];
 
 
@@ -13,7 +13,7 @@ exports.indexRequest = function (req, res) {
     let negotiator = new Negotiator(req);
     let mediaType = negotiator.mediaType(availableMediaTypes);
     console.log("Mediatype selected: " + mediaType);
-    let landmark = new Landmark();
+    let landmark = new Place();
     landmark.defaultLandmark().then(data => {
         res.statusCode = 200;
         switch (mediaType) {
@@ -42,7 +42,7 @@ exports.getEntity = function (req, res, id) {
     let negotiator = new Negotiator(req);
     let mediaType = negotiator.mediaType(availableMediaTypes);
     console.log("Mediatype selected: " + mediaType);
-    let landmark = new Landmark(id);
+    let landmark = new Place(id);
     landmark.getLandmarkById(id).then(data => {
         switch (mediaType) {
             case 'application/ld+json':
@@ -74,7 +74,7 @@ exports.getDefaultEntity = function (req, res) {
     let negotiator = new Negotiator(req);
     let mediaType = negotiator.mediaType(availableMediaTypes);
     console.log("Mediatype selected: " + mediaType);
-    let landmark = new Landmark();
+    let landmark = new Place();
     landmark.getDefaultEntity().then(data => {
         switch (mediaType) {
             case 'application/ld+json':
@@ -106,7 +106,7 @@ exports.putEntity = function (req, res, id) {
         let negotiator = new Negotiator(req);
         let mediaType = negotiator.mediaType(availableMediaTypes);
         console.log("Mediatype selected: " + mediaType);
-        let landmark = new Landmark(id);
+        let landmark = new Place(id);
         landmark.updateLandmarkById(JSON.parse(body), id).then(data => {
             res.statusCode = 200;
             switch (mediaType) {
@@ -139,7 +139,7 @@ exports.postEntity = function (req, res) {
         let negotiator = new Negotiator(req);
         let mediaType = negotiator.mediaType(availableMediaTypes);
         console.log("Mediatype selected: " + mediaType);
-        let landmark = new Landmark();
+        let landmark = new Place();
         console.log(JSON.parse(body));
         landmark.createNewLandmark(JSON.parse(body)).then(data => {
             res.statusCode = 200;
@@ -165,7 +165,7 @@ exports.postEntity = function (req, res) {
 }
 
 exports.deleteEntity = function (req, res, id) {
-    const landmark = new Landmark();
+    const landmark = new Place();
     landmark.getLandmarkById(id).then(data => {
         landmark.deleteLandmarkById(id).then(() => {
             console.log(data + ' was deleted');
