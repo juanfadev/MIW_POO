@@ -1,6 +1,6 @@
 const Negotiator = require('negotiator');
-const Place = require('./landmark.js');
-let availableMediaTypes = ['text/html', 'text/plain', 'application/json', 'application/ld+json'];
+const Place = require('../place.js');
+let availableMediaTypes = ['text/plain','text/html',  'application/json', 'application/ld+json'];
 
 
 exports.invalidRequest = function (req, res) {
@@ -13,27 +13,32 @@ exports.indexRequest = function (req, res) {
     let negotiator = new Negotiator(req);
     let mediaType = negotiator.mediaType(availableMediaTypes);
     console.log("Mediatype selected: " + mediaType);
-    let landmark = new Place();
-    landmark.defaultLandmark().then(data => {
-        res.statusCode = 200;
+    let place = new Place();
+    place.defaultEntities().then(data => {
         switch (mediaType) {
             case 'text/plain':
-                resp.setHeader('Content-Type', 'text/plain');
-                resp.end(data);
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'text/plain');
+                res.end(data);
                 break;
             case 'application/ld+json':
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/ld+json');
+                res.end(data);
+                break;
             case 'application/json':
-                resp.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(data));
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(data);
                 break;
             case 'text/html':
             default:
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'text/html');
-                res.end(landmark.toHTML(data));
+                res.end(place.toHTML(data));
         }
-    }).catch(err => {
-        console.log(error);
+    }).catch((err) => {
+        console.log(err);
         this.invalidRequest(req, res);
     });
 };
@@ -42,24 +47,24 @@ exports.getEntity = function (req, res, id) {
     let negotiator = new Negotiator(req);
     let mediaType = negotiator.mediaType(availableMediaTypes);
     console.log("Mediatype selected: " + mediaType);
-    let landmark = new Place(id);
-    landmark.getLandmarkById(id).then(data => {
+    let place = new Place(id);
+    place.getPlaceById(id).then(data => {
         switch (mediaType) {
             case 'application/ld+json':
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/ld+json');
-                res.end(JSON.stringify(data));
+                res.end(data);
                 break;
             case 'application/json':
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(data));
+                res.end(data);
                 break;
             case 'text/html':
             default:
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'text/html');
-                res.end(landmark.toHTML(data));
+                res.end(place.toHTML(data));
 
         }
     }).catch((error) => {
@@ -74,24 +79,24 @@ exports.getDefaultEntity = function (req, res) {
     let negotiator = new Negotiator(req);
     let mediaType = negotiator.mediaType(availableMediaTypes);
     console.log("Mediatype selected: " + mediaType);
-    let landmark = new Place();
-    landmark.getDefaultEntity().then(data => {
+    let place = new Place();
+    place.getAllPlaces().then(data => {
         switch (mediaType) {
             case 'application/ld+json':
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/ld+json');
-                res.end(JSON.stringify(data));
+                res.end(data);
                 break;
             case 'application/json':
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(data));
+                res.end(data);
                 break;
             case 'text/html':
             default:
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'text/html');
-                res.end(landmark.toHTML(data));
+                res.end(place.toHTML(JSON.stringify(data)));
 
         }
     })
@@ -106,22 +111,22 @@ exports.putEntity = function (req, res, id) {
         let negotiator = new Negotiator(req);
         let mediaType = negotiator.mediaType(availableMediaTypes);
         console.log("Mediatype selected: " + mediaType);
-        let landmark = new Place(id);
-        landmark.updateLandmarkById(JSON.parse(body), id).then(data => {
+        let place = new Place(id);
+        place.updatePlaceById(JSON.parse(body), id).then(data => {
             res.statusCode = 200;
             switch (mediaType) {
                 case 'application/ld+json':
                     res.setHeader('Content-Type', 'application/ld+json');
-                    res.end(JSON.stringify(data));
+                    res.end(data);
                     break;
                 case 'application/json':
                     res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify(data));
+                    res.end(data);
                     break;
                 case 'text/html':
                 default:
                     res.setHeader('Content-Type', 'text/html');
-                    res.end(landmark.toHTML(data));
+                    res.end(place.toHTML(data));
             }
         }).catch((error) => {
             console.log(error);
@@ -139,23 +144,23 @@ exports.postEntity = function (req, res) {
         let negotiator = new Negotiator(req);
         let mediaType = negotiator.mediaType(availableMediaTypes);
         console.log("Mediatype selected: " + mediaType);
-        let landmark = new Place();
+        let place = new Place();
         console.log(JSON.parse(body));
-        landmark.createNewLandmark(JSON.parse(body)).then(data => {
+        place.createNewPlace(JSON.parse(body)).then(data => {
             res.statusCode = 200;
             switch (mediaType) {
                 case 'application/ld+json':
                     res.setHeader('Content-Type', 'application/ld+json');
-                    res.end(JSON.stringify(data));
+                    res.end(data);
                     break;
                 case 'application/json':
                     res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify(data));
+                    res.end(data);
                     break;
                 case 'text/html':
                 default:
                     res.setHeader('Content-Type', 'text/html');
-                    res.end(landmark.toHTML(data));
+                    res.end(place.toHTML(data));
             }
         }).catch((error) => {
             console.log(error);
@@ -165,12 +170,12 @@ exports.postEntity = function (req, res) {
 }
 
 exports.deleteEntity = function (req, res, id) {
-    const landmark = new Place();
-    landmark.getLandmarkById(id).then(data => {
-        landmark.deleteLandmarkById(id).then(() => {
+    const place = new Place();
+    place.getPlaceById(id).then(data => {
+        place.deletePlaceById(id).then(() => {
             console.log(data + ' was deleted');
             res.statusCode = 200;
-            res.end();
+            res.end(data);
         }).catch(err => {
             console.log(err);
             this.invalidRequest(req, res);

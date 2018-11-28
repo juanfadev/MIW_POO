@@ -1,7 +1,7 @@
 const http = require('http');
 const url = require('url');
 const SCHEMA = "LandmarksOrHistoricalBuildings";
-const PLACE = "Place";
+const PLACE = "Places";
 const entities = [SCHEMA, PLACE];
 
 module.exports = http.createServer((req, res) => {
