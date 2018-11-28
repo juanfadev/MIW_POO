@@ -80,7 +80,7 @@ exports.getDefaultEntity = function (req, res) {
     let mediaType = negotiator.mediaType(availableMediaTypes);
     console.log("Mediatype selected: " + mediaType);
     let landmark = new Landmark();
-    landmark.defaultLandmark().then(data => {
+    landmark.getAllLandmarks().then(data => {
         switch (mediaType) {
             case 'application/ld+json':
                 res.statusCode = 200;
@@ -96,7 +96,7 @@ exports.getDefaultEntity = function (req, res) {
             default:
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'text/html');
-                res.end(landmark.toHTML(data));
+                res.end(landmark.toHTML(JSON.stringify(data)));
 
         }
     })

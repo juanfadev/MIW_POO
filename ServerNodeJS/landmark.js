@@ -45,9 +45,18 @@ module.exports = class Landmark {
         return await unlink(`${landmarksFolder}/${id}.json`);
     }
 
-    async defaultEntities(){
+    async defaultEntities() {
         console.log("Entities");
         return await readFile(entities, 'utf8');
+    }
+
+    async getAllLandmarks() {
+        const files = await this.readDir(landmarksFolder);
+        const jsonArray = await Promise.all(files.map(async (file) => {
+            const contents = await readFile(`${landmarksFolder}/${file}`, 'utf8');
+            return JSON.parse(contents);
+        }));
+        return JSON.stringify(jsonArray);
     }
 
     async defaultLandmark() {

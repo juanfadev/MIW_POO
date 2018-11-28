@@ -3,11 +3,39 @@ import NetworkService from './NetworkService.mjs'
 
 const phpURL = "http://localhost:80/PHP_Server/api/";
 const nodeURL = "http://localhost:3000";
+const pythonURL = "http://localhost:3000";
 
 NetworkService.baseUrl = phpURL;
 
 document.addEventListener("DOMContentLoaded", () => {
     loadEntities();
+});
+
+document.getElementById("serverSelect").addEventListener("change", () => {
+    switch (document.getElementById("serverSelect").value) {
+        case "php":
+            NetworkService.baseUrl = phpURL;
+            break;
+        case "node":
+            NetworkService.baseUrl = nodeURL;
+            break;
+        case "python":
+            NetworkService.baseUrl = pythonURL;
+            break;
+        default:
+            NetworkService.baseUrl = phpURL;
+            break;
+    }
+    removeCSSClassCurrent();
+    loadEntities();
+    document.getElementById("entitiesNav").parentNode.classList.add('current');
+});
+
+
+document.getElementById("entitiesNav").addEventListener("click", () => {
+    removeCSSClassCurrent();
+    loadEntities();
+    document.getElementById("entitiesNav").parentNode.classList.add('current');
 });
 
 document.getElementById("landmarksNav").addEventListener("click", () => {
@@ -17,33 +45,11 @@ document.getElementById("landmarksNav").addEventListener("click", () => {
 
 });
 
-document.getElementById("entitiesNav").addEventListener("click", () => {
-    removeCSSClassCurrent();
-    loadEntities();
-    document.getElementById("entitiesNav").parentNode.classList.add('current');
-});
-
 document.getElementById("placesNav").addEventListener("click", () => {
     removeCSSClassCurrent();
     loadPlaces();
     document.getElementById("placesNav").parentNode.classList.add('current');
 });
-
-
-async function fetchAsync() {
-    // await response of fetch call
-    let response = await fetch('https://api.github.com');
-    // only proceed once promise is resolved
-    let data = await response.json();
-    // only proceed once second promise is resolved
-    return data;
-}
-
-// trigger async function
-// log response or catch error of fetch promise
-fetchAsync()
-    .then(data => console.log(data))
-    .catch(reason => console.log(reason.message))
 
 function loadLandmarks() {
     console.log("Fetching data");
@@ -53,7 +59,7 @@ function loadLandmarks() {
             let articles = document.getElementById("articles");
             removeChildren(articles);
             try {
-                data.forEach(j => loadArticle(j));
+                data.forEach(j => loadArticle(j, data.indexOf(j)));
             } catch{
                 loadArticle(data);
             }
@@ -62,7 +68,7 @@ function loadLandmarks() {
 
 }
 
-function loadPlaces(){
+function loadPlaces() {
     console.log("Fetching data");
     NetworkService.getAllPlaces()
         .then(data => {
@@ -70,7 +76,7 @@ function loadPlaces(){
             let articles = document.getElementById("articles");
             removeChildren(articles);
             try {
-                data.forEach(j => loadArticle(j));
+                data.forEach(j => loadArticle(j, data.indexOf(j)));
             } catch{
                 loadArticle(data);
             }
@@ -95,14 +101,19 @@ function loadEntity(json) {
     article.classList.add('post');
     article.classList.add('post-excerpt');
     article.innerHTML = `<header>
-    <h2><a href="#">${json['@type']}</a></h2></header>`
+    <h2><a href="#">${json['@type']}</a></h2><p>JSON-LD</p></header>`
     let text = document.createElement('textarea');
     text.value = JSON.stringify(json, undefined, 2);
+    let button = document.createElement('input');
+    button.type = "button";
+    button.value = "Create";
+    button.id = `create${json["@type"]}`
     article.appendChild(text);
+    article.appendChild(button);
     articles.appendChild(article);
 }
 
-function loadArticle(json) {
+function loadArticle(json, id) {
     console.log("LoadArticles");
     console.log(json);
     console.log(json.address);
@@ -128,6 +139,22 @@ function loadArticle(json) {
             Country: ${json.address.addressCountry}
         </li>
     </ul>`
+    let button = document.createElement('input');
+    button.type = "button";
+    button.value = "Edit";
+    button.id = `edit${json["@type"]}`
+    button.addEventListener("click", () => {
+        loadEditForm(json, id);
+    });
+    let button2 = document.createElement('input');
+    button2.type = "button";
+    button2.value = "Delete";
+    button2.id = `delete${json["@type"]}`
+    button2.addEventListener("click", () => {
+        deleteEntity(json, id);
+    });
+    article.appendChild(button);
+    article.appendChild(button2);
     articles.appendChild(article);
 }
 
@@ -137,6 +164,59 @@ function removeChildren(element) {
     }
 }
 
-function removeCSSClassCurrent(){
+function removeCSSClassCurrent() {
     document.querySelector("nav > ul > li.current").classList.remove('current');
+}
+
+function loadEditForm(json, id) {
+    let articles = document.getElementById("articles");
+    removeChildren(articles);
+    let article = document.createElement('article');
+    article.classList.add('box');
+    article.classList.add('post');
+    article.classList.add('post-excerpt');
+    article.innerHTML = `<header>
+    <h2><a href="#">Edit ${json['@type']} ${id}</a></h2><p>JSON-LD</p></header>`
+    let text = document.createElement('textarea');
+    text.id = `updateTextArea`;
+    text.value = JSON.stringify(json, undefined, 2);
+    let button = document.createElement('input');
+    button.type = "button";
+    button.value = "Update";
+    button.id = `update${json["@type"]}`;
+    button.addEventListener("click", () => {
+        updateEntity(id);
+    });
+    article.appendChild(text);
+    article.appendChild(button);
+    articles.appendChild(article);
+}
+
+function deleteEntity(json, id) {
+    switch (json["@type"]) {
+        case LandmarksOrHistoricalBuildings:
+            NetworkService.deleteLandmark(json, id);
+            break;
+        case Places:
+            NetworkService.deletePlace(json, id)
+            break;
+        default:
+            alert("No entity could be deleted.");
+            break;
+    }
+}
+
+function updateEntity(id) {
+    let json = JSON.parse(document.getElementById("updateTextArea").value);
+    switch (json["@type"]) {
+        case "LandmarksOrHistoricalBuildings":
+            NetworkService.putLandmark(json, id);
+            break;
+        case "Places":
+            NetworkService.putPlace(json, id)
+            break;
+        default:
+            alert(`No entity ${json["@type"]} could be updated.`);
+            break;
+    }
 }

@@ -1,6 +1,6 @@
 import RequestService from './RequestService.mjs'
 
-const BASE_URL = "http://localhost:80"
+const BASE_URL = "http://localhost:3000"
 const SCHEMA = "LandmarksOrHistoricalBuildings"
 const PLACES = "Places"
 //const API_KEY = "?api-key=GET-YOUR-FREE-API-KEY:)"
