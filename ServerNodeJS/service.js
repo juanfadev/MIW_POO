@@ -175,7 +175,7 @@ exports.deleteEntity = function (req, res, id) {
         landmark.deleteLandmarkById(id).then(() => {
             console.log(data + ' was deleted');
             res.statusCode = 200;
-            res.end();
+            res.end(data);
         }).catch(err => {
             console.log(err);
             this.invalidRequest(req, res);

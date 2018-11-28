@@ -116,7 +116,7 @@ function loadEntity(json) {
 function loadArticle(json, id) {
     console.log("LoadArticles");
     console.log(json);
-    console.log(json.address);
+    console.log("ID:" +id);
     let articles = document.getElementById("articles");
     let article = document.createElement('article');
     article.classList.add('box');
@@ -144,7 +144,7 @@ function loadArticle(json, id) {
     button.value = "Edit";
     button.id = `edit${json["@type"]}`
     button.addEventListener("click", () => {
-        loadEditForm(json, id);
+        loadEditForm(id);
     });
     let button2 = document.createElement('input');
     button2.type = "button";
@@ -168,41 +168,51 @@ function removeCSSClassCurrent() {
     document.querySelector("nav > ul > li.current").classList.remove('current');
 }
 
-function loadEditForm(json, id) {
-    let articles = document.getElementById("articles");
-    removeChildren(articles);
-    let article = document.createElement('article');
-    article.classList.add('box');
-    article.classList.add('post');
-    article.classList.add('post-excerpt');
-    article.innerHTML = `<header>
-    <h2><a href="#">Edit ${json['@type']} ${id}</a></h2><p>JSON-LD</p></header>`
-    let text = document.createElement('textarea');
-    text.id = `updateTextArea`;
-    text.value = JSON.stringify(json, undefined, 2);
-    let button = document.createElement('input');
-    button.type = "button";
-    button.value = "Update";
-    button.id = `update${json["@type"]}`;
-    button.addEventListener("click", () => {
-        updateEntity(id);
-    });
-    article.appendChild(text);
-    article.appendChild(button);
-    articles.appendChild(article);
+function loadEditForm(id) {
+    NetworkService.getLandMark(id).then(json => {
+        console.log(json);
+        let articles = document.getElementById("articles");
+        removeChildren(articles);
+        let article = document.createElement('article');
+        article.classList.add('box');
+        article.classList.add('post');
+        article.classList.add('post-excerpt');
+        article.innerHTML = `<header>
+        <h2><a href="#">Edit ${json['@type']} ${id}</a></h2><p>JSON-LD</p></header>`
+        let text = document.createElement('textarea');
+        text.id = `updateTextArea`;
+        text.value = JSON.stringify(json, undefined, 2);
+        let button = document.createElement('input');
+        button.type = "button";
+        button.value = "Update";
+        button.id = `update${json["@type"]}`;
+        button.addEventListener("click", () => {
+            updateEntity(id);
+        });
+        article.appendChild(text);
+        article.appendChild(button);
+        articles.appendChild(article);
+    }).catch(reason => alert("Error on loading entities " + reason.message))
 }
 
 function deleteEntity(json, id) {
-    switch (json["@type"]) {
-        case LandmarksOrHistoricalBuildings:
-            NetworkService.deleteLandmark(json, id);
-            break;
-        case Places:
-            NetworkService.deletePlace(json, id)
-            break;
-        default:
-            alert("No entity could be deleted.");
-            break;
+    if (window.confirm(`Do you really want to update ${json["@type"]}/${id}?`)) {
+        switch (json["@type"]) {
+            case "LandmarksOrHistoricalBuildings":
+                NetworkService.deleteLandMark(json, id).then((a) => {
+                    alert("Deleted landmark.");
+                    removeCSSClassCurrent();
+                    loadLandmarks();
+                    document.getElementById("landmarksNav").parentNode.classList.add('current');
+                });
+                break;
+            case "Places":
+                NetworkService.deletePlace(json, id)
+                break;
+            default:
+                alert("No entity could be deleted.");
+                break;
+        }
     }
 }
 
@@ -210,7 +220,11 @@ function updateEntity(id) {
     let json = JSON.parse(document.getElementById("updateTextArea").value);
     switch (json["@type"]) {
         case "LandmarksOrHistoricalBuildings":
-            NetworkService.putLandmark(json, id);
+            NetworkService.putLandMark(json, id);
+            alert("Updated landmark.");
+            removeCSSClassCurrent();
+            loadLandmarks();
+            document.getElementById("landmarksNav").parentNode.classList.add('current');
             break;
         case "Places":
             NetworkService.putPlace(json, id)

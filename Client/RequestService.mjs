@@ -37,6 +37,10 @@ class RequestService {
             settings.method = 'POST';
         } else if (method === 'GET') {
             settings.method = 'GET';
+        } else if (method === 'PUT') {
+            settings.method = 'PUT';
+        } else if (method === 'DELETE') {
+            settings.method = 'DELETE';
         } else {
             settings.method = 'GET';
         }
