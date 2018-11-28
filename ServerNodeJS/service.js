@@ -1,6 +1,6 @@
 const Negotiator = require('negotiator');
 const Landmark = require('./landmark.js');
-let availableMediaTypes = ['text/html', 'text/plain', 'application/json', 'application/ld+json'];
+let availableMediaTypes = ['text/plain','text/html',  'application/json', 'application/ld+json'];
 
 
 exports.invalidRequest = function (req, res) {
@@ -14,17 +14,22 @@ exports.indexRequest = function (req, res) {
     let mediaType = negotiator.mediaType(availableMediaTypes);
     console.log("Mediatype selected: " + mediaType);
     let landmark = new Landmark();
-    landmark.defaultLandmark().then(data => {
-        res.statusCode = 200;
+    landmark.defaultEntities().then(data => {
         switch (mediaType) {
             case 'text/plain':
-                resp.setHeader('Content-Type', 'text/plain');
-                resp.end(data);
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'text/plain');
+                res.end(data);
                 break;
             case 'application/ld+json':
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/ld+json');
+                res.end(data);
+                break;
             case 'application/json':
-                resp.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(data));
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(data);
                 break;
             case 'text/html':
             default:
@@ -32,8 +37,8 @@ exports.indexRequest = function (req, res) {
                 res.setHeader('Content-Type', 'text/html');
                 res.end(landmark.toHTML(data));
         }
-    }).catch(err => {
-        console.log(error);
+    }).catch((err) => {
+        console.log(err);
         this.invalidRequest(req, res);
     });
 };
@@ -48,12 +53,12 @@ exports.getEntity = function (req, res, id) {
             case 'application/ld+json':
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/ld+json');
-                res.end(JSON.stringify(data));
+                res.end(data);
                 break;
             case 'application/json':
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(data));
+                res.end(data);
                 break;
             case 'text/html':
             default:
@@ -75,17 +80,17 @@ exports.getDefaultEntity = function (req, res) {
     let mediaType = negotiator.mediaType(availableMediaTypes);
     console.log("Mediatype selected: " + mediaType);
     let landmark = new Landmark();
-    landmark.getDefaultEntity().then(data => {
+    landmark.defaultLandmark().then(data => {
         switch (mediaType) {
             case 'application/ld+json':
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/ld+json');
-                res.end(JSON.stringify(data));
+                res.end(data);
                 break;
             case 'application/json':
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(data));
+                res.end(data);
                 break;
             case 'text/html':
             default:
@@ -112,11 +117,11 @@ exports.putEntity = function (req, res, id) {
             switch (mediaType) {
                 case 'application/ld+json':
                     res.setHeader('Content-Type', 'application/ld+json');
-                    res.end(JSON.stringify(data));
+                    res.end(data);
                     break;
                 case 'application/json':
                     res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify(data));
+                    res.end(data);
                     break;
                 case 'text/html':
                 default:
@@ -146,11 +151,11 @@ exports.postEntity = function (req, res) {
             switch (mediaType) {
                 case 'application/ld+json':
                     res.setHeader('Content-Type', 'application/ld+json');
-                    res.end(JSON.stringify(data));
+                    res.end(data);
                     break;
                 case 'application/json':
                     res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify(data));
+                    res.end(data);
                     break;
                 case 'text/html':
                 default:

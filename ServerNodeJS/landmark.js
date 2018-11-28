@@ -6,6 +6,7 @@ const readdir = util.promisify(fs.readdir);
 const unlink = util.promisify(fs.unlink);
 const landmarksFolder = './landmarks'
 const landmarkDefault = './entities/landmark.json'
+const entities = './entities/entities.json'
 
 module.exports = class Landmark {
 
@@ -42,6 +43,11 @@ module.exports = class Landmark {
 
     async deleteLandmarkById(id) {
         return await unlink(`${landmarksFolder}/${id}.json`);
+    }
+
+    async defaultEntities(){
+        console.log("Entities");
+        return await readFile(entities, 'utf8');
     }
 
     async defaultLandmark() {
