@@ -31,7 +31,7 @@ module.exports = http.createServer((req, res) => {
                 break;
             default:
                 console.log('Request Type:' +
-                    req.method + ' Invalid Endpoint: ' +
+                    req.method + ' NO ENTITY ON PATH: ' +
                     reqUrl.pathname);
                 break;
         }
@@ -60,6 +60,11 @@ module.exports = http.createServer((req, res) => {
                 req.method + ' Endpoint: ' +
                 reqUrl.pathname);
             service.indexRequest(req, res);
+        } else if (reqUrl.pathname == '/validate' && req.method=='POST'){
+            console.log('Request Type:' +
+                req.method + ' VALIDATING: ' +
+                reqUrl.pathname);
+            service.validateEntity2(req, res);
         } else if (entities.includes(entity) && req.method == 'GET') {
             console.log('Request Type:' +
                 req.method + ' Endpoint: ' +

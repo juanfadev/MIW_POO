@@ -81,7 +81,6 @@ module.exports = class Landmark {
                 <h1>Landmark: ${json.name}</h1>
                 <h2>Description:</h2>
                     <p>${json.description}</p>
-                    <p>${json}</p>
                 <h2>Address:</h2>
                 <ul>
                     <li>
